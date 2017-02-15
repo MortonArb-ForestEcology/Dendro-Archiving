@@ -9,7 +9,7 @@
 #------------------------------------
 # Description
 #------------------------------------
-# Defines two functions (core_metadata and species_correction) to extract metadata (saple names, species, start and end years)
+# Defines two functions (core_metadata and species_correction) to extract metadata (sample names, species, start and end years)
 #   from decadal tree core measurement files and convert species IDs to genus and species names. Then run the function with the appropriate user input and
 #   write data to a csv file
 
@@ -111,7 +111,7 @@ core_metadata <- function(project, location, Lat, Lon, PI){
 McCormick_Ravine <- core_metadata("INAI", "McCormick Ravine", "41.836512", "-87.829294", "Bob Fahey") #run function
 
 
-#import lookup table
+# Import lookup table
 library(readr)
 LookupTable <- read.csv("core_metadata_lookup.csv")
 
