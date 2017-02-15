@@ -9,8 +9,8 @@
 #------------------------------------
 # Description
 #------------------------------------
-# Defines a function (core_metadata) to extract metadata (saple names, species, start and end years)
-#   from decadal tree core measurement files. Then runn the function with the appropriate user input and
+# Defines two functions (core_metadata and species_correction) to extract metadata (saple names, species, start and end years)
+#   from decadal tree core measurement files and convert species IDs to genus and species names. Then run the function with the appropriate user input and
 #   write data to a csv file
 
 # core_meatdata input:
@@ -21,6 +21,13 @@
 
 # core_metadata output:
 # dataframe with one row for each sample
+
+# species_correction input:
+# 1. data - the name of the dataframe that was created with core_metadata
+# 2. LookupTable - the imported lookup table
+
+# species_correction output:
+# 1. the same dataframe with corrected genus and species data
 
 # additional script input:
 # 1. A file name for the csv
@@ -38,6 +45,10 @@
 # 1) Get names for all filenames in directory that are not excel spreadsheets
 # 2) Import data using dplR package to convert from decadal format to dataframe
 # 3) Isolate metadata and write to dataframe
+
+# species_correction
+# 1) Match species IDs in lookup table to those in dataframe
+# 2) Change genus and species information to matching values in lookup table
 
 #------------------------------------
 
@@ -79,8 +90,10 @@ core_metadata <- function(project, location, Lat, Lon, PI){
       begin <- row.names(rwl_df)[no_na[1]] #get year of first datapoint
       end <- row.names(rwl_df)[no_na[length(no_na)]] #get year of last datapoint
       
+      genus <- c("") #make empty string for genus
+      
       #combine data in single df
-      data_list <- list(project, location, Lat, Lon, PI, samp_name, species_name, begin, end, dat_files[f]) #combine data in list
+      data_list <- list(project, location, Lat, Lon, PI, samp_name, genus, species_name, begin, end, dat_files[f]) #combine data in list
       df_final <- rbind(df_final, data_list, stringsAsFactors = FALSE) #add list as row
       
       i = i + 1
@@ -89,17 +102,48 @@ core_metadata <- function(project, location, Lat, Lon, PI){
     f = f + 1
   }
   
-  colnames(df_final) <- c("Project", "Location", "Lat", "Lon", "PI", "Sample", "Species", "YR_Start", "YR_End", "File_name") #rename columns
+  colnames(df_final) <- c("Project", "Location", "Lat", "Lon", "PI", "Sample", "Genus", "Species", "YR_Start", "YR_End", "File_name") #rename columns
   return(df_final)
 }
 
 
-# Run as: input_name <- core_metadata("Project_Name", "Location_Name", "PI_Name")
-#         write.csv(input_name, file = "input.csv")
-
+# Run as: input_name <- core_metadata("Project_Name", "Location_Name", "Lat", "Lon" "PI_Name")
 Ryerson_Flatwoods <- core_metadata("INAI", "Ryerson", "42.181355", "-87.914795", "Bob Fahey") #run function
 
-# Check dataframe
 
+#import lookup table
+library(readr)
+LookupTable <- read.csv("core_metadata_lookup.csv")
+
+
+# Correct species based on lookup table
+
+species_correction <- function(data, LookupTable){ #data = dataframe that was just created
+  
+  for (z in 1:nrow(LookupTable)){ # for each species value in the lookup table
+    if (LookupTable$lookupValue[z] %in% data$Species == TRUE){ # if the species value is found in the dataframe
+      dex <- matches(LookupTable$lookupValue[z], Ryerson_Flatwoods$Species, list = TRUE) # find all matches of that species value
+      dex <- unlist(dex)
+
+      for (d in 1:length(dex)){ # for each match
+        data$Genus[dex][d] <- LookupTable$genus_Value[z] # apply genus name to dataframe
+        data$Species[dex][d] <- LookupTable$species_Value[z] # apply species name to dataframe
+      }
+    }
+  }
+  return(data)
+}
+
+
+# Run as: input_name <- species_correction(input_name, LookupTable)
+Ryerson_Flatwoods <- species_correction(Ryerson_Flatwoods, LookupTable)
+
+
+
+# Check dataframe and manually fix any errors
+
+
+
+# Run as: write.csv(input_name, file = "input.csv")
 write.csv(Ryerson_Flatwoods, file = "Ryerson_Flatwoods.csv") #write df to csv
 
