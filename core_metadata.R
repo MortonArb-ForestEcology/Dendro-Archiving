@@ -108,7 +108,7 @@ core_metadata <- function(project, location, Lat, Lon, PI){
 
 
 # Run as: input_name <- core_metadata("Project_Name", "Location_Name", "Lat", "Lon" "PI_Name")
-Ryerson_Flatwoods <- core_metadata("INAI", "Ryerson", "42.181355", "-87.914795", "Bob Fahey") #run function
+McCormick_Ravine <- core_metadata("INAI", "McCormick Ravine", "41.836512", "-87.829294", "Bob Fahey") #run function
 
 
 #import lookup table
@@ -122,7 +122,7 @@ species_correction <- function(data, LookupTable){ #data = dataframe that was ju
   
   for (z in 1:nrow(LookupTable)){ # for each species value in the lookup table
     if (LookupTable$lookupValue[z] %in% data$Species == TRUE){ # if the species value is found in the dataframe
-      dex <- matches(LookupTable$lookupValue[z], Ryerson_Flatwoods$Species, list = TRUE) # find all matches of that species value
+      dex <- matches(LookupTable$lookupValue[z], data$Species, list = TRUE) # find all matches of that species value
       dex <- unlist(dex)
 
       for (d in 1:length(dex)){ # for each match
@@ -136,7 +136,7 @@ species_correction <- function(data, LookupTable){ #data = dataframe that was ju
 
 
 # Run as: input_name <- species_correction(input_name, LookupTable)
-Ryerson_Flatwoods <- species_correction(Ryerson_Flatwoods, LookupTable)
+McCormick_Ravine <- species_correction(McCormick_Ravine, LookupTable)
 
 
 
@@ -145,5 +145,5 @@ Ryerson_Flatwoods <- species_correction(Ryerson_Flatwoods, LookupTable)
 
 
 # Run as: write.csv(input_name, file = "input.csv")
-write.csv(Ryerson_Flatwoods, file = "Ryerson_Flatwoods.csv") #write df to csv
+write.csv(McCormick_Ravine, file = "McCormick_Ravine.csv") #write df to csv
 
