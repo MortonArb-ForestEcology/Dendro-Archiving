@@ -45,7 +45,7 @@
 
 setwd() #set wd to location of files
 
-core_metadata <- function(project, location, PI){
+core_metadata <- function(project, location, Lat, Lon, PI){
   
   #Load required libraries
   library(dplR)
@@ -80,7 +80,7 @@ core_metadata <- function(project, location, PI){
       end <- row.names(rwl_df)[no_na[length(no_na)]] #get year of last datapoint
       
       #combine data in single df
-      data_list <- list(project, location, PI, samp_name, species_name, begin, end, dat_files[f]) #combine data in list
+      data_list <- list(project, location, Lat, Lon, PI, samp_name, species_name, begin, end, dat_files[f]) #combine data in list
       df_final <- rbind(df_final, data_list, stringsAsFactors = FALSE) #add list as row
       
       i = i + 1
@@ -89,7 +89,7 @@ core_metadata <- function(project, location, PI){
     f = f + 1
   }
   
-  colnames(df_final) <- c("Project", "Location", "PI", "Sample", "Species", "YR_Start", "YR_End", "File_name") #rename columns
+  colnames(df_final) <- c("Project", "Location", "Lat", "Lon", "PI", "Sample", "Species", "YR_Start", "YR_End", "File_name") #rename columns
   return(df_final)
 }
 
@@ -97,7 +97,7 @@ core_metadata <- function(project, location, PI){
 # Run as: input_name <- core_metadata("Project_Name", "Location_Name", "PI_Name")
 #         write.csv(input_name, file = "input.csv")
 
-Ryerson_Flatwoods <- core_metadata("INAI", "Ryerson", "Bob Fahey") #run function
+Ryerson_Flatwoods <- core_metadata("INAI", "Ryerson", "42.181355", "-87.914795", "Bob Fahey") #run function
 
 # Check dataframe
 
