@@ -13,11 +13,14 @@
 #   from decadal tree core measurement files and convert species IDs to genus and species names. Then run the function with the appropriate user input and
 #   write data to a csv file
 
-# core_meatdata input:
+# core_metadata input:
 # 1. Project - the name of the project (string)
 # 2. Location - where the cores were taken (string)
-# 3. PI - who took the cores (string)
-# 4. A name to store the dataframe as
+# 3. Plot - which plot cores were taken from (string)
+# 4. Lat - latitude (string)
+# 5. Lon - longitude (string)
+# 6. PI - who took the cores (string)
+# 7. A name to store the dataframe as
 
 # core_metadata output:
 # dataframe with one row for each sample
@@ -41,7 +44,7 @@
 #------------------------------------
 # Workflow Overview
 #------------------------------------
-# core_meatadata:
+# core_metadata:
 # 1) Get names for all filenames in directory that are not excel spreadsheets
 # 2) Import data using dplR package to convert from decadal format to dataframe
 # 3) Isolate metadata and write to dataframe
@@ -56,7 +59,7 @@
 
 setwd() #set wd to location of files
 
-core_metadata <- function(project, location, Lat, Lon, PI){
+core_metadata <- function(project, location, plot, Lat, Lon, PI){
   
   #Load required libraries
   library(dplR)
@@ -67,6 +70,7 @@ core_metadata <- function(project, location, Lat, Lon, PI){
   rem_files <- dat_files[grep("*.xlsx$", dat_files)] #get file names to remove
   dat_files <- dat_files[!dat_files %in% rem_files] #remove those files with .xlsx
   
+  
   #create df for all data
   df_final <- data.frame(stringsAsFactors = FALSE)
   #assign(label, df_name)
@@ -74,6 +78,7 @@ core_metadata <- function(project, location, Lat, Lon, PI){
   f = 1
   for (y in 1:length(dat_files)){
     
+    print(dat_files[f])
     rwl_df <- read.rwl(dat_files[f]) #read in data
     
     i = 1
@@ -93,22 +98,22 @@ core_metadata <- function(project, location, Lat, Lon, PI){
       genus <- c("") #make empty string for genus
       
       #combine data in single df
-      data_list <- list(project, location, Lat, Lon, PI, samp_name, genus, species_name, begin, end, dat_files[f]) #combine data in list
+      data_list <- list(project, location, plot, Lat, Lon, PI, samp_name, genus, species_name, begin, end, dat_files[f]) #combine data in list
       df_final <- rbind(df_final, data_list, stringsAsFactors = FALSE) #add list as row
       
       i = i + 1
     }
-    
+ 
     f = f + 1
   }
   
-  colnames(df_final) <- c("Project", "Location", "Lat", "Lon", "PI", "Sample", "Genus", "Species", "YR_Start", "YR_End", "File_name") #rename columns
+  colnames(df_final) <- c("Project", "Location", "Plot", "Lat", "Lon", "PI", "Sample", "Genus", "Species", "YR_Start", "YR_End", "File_name") #rename columns
   return(df_final)
 }
 
 
-# Run as: input_name <- core_metadata("Project_Name", "Location_Name", "Lat", "Lon" "PI_Name")
-McCormick_Ravine <- core_metadata("INAI", "McCormick Ravine", "41.836512", "-87.829294", "Bob Fahey") #run function
+# Run as: input_name <- core_metadata("Project_Name", "Location_Name", "Plot_Number", "Lat", "Lon" "PI_Name")
+PIRO2 <- core_metadata("Coastal Pines", "Pictured Rocks", "2", "46.574674", "-86.355146", "Bob Fahey") #run function
 
 
 # Import lookup table
@@ -136,7 +141,7 @@ species_correction <- function(data, LookupTable){ #data = dataframe that was ju
 
 
 # Run as: input_name <- species_correction(input_name, LookupTable)
-McCormick_Ravine <- species_correction(McCormick_Ravine, LookupTable)
+PIRO2 <- species_correction(PIRO2, LookupTable)
 
 
 
@@ -145,5 +150,5 @@ McCormick_Ravine <- species_correction(McCormick_Ravine, LookupTable)
 
 
 # Run as: write.csv(input_name, file = "input.csv")
-write.csv(McCormick_Ravine, file = "McCormick_Ravine.csv") #write df to csv
+write.csv(PIRO2, file = "Pictured_Rocks2.csv") #write df to csv
 
